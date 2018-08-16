@@ -5,13 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     .card {
-      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 8px 0;
       transition: 0.3s;
-      width: 40%;
+      width: 90%;
+      height: 150%;
+      cursor: pointer;
+      background: #546e7a !important;
+      margin-bottom: 10px;
     }
 
     .card:hover {
       box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+      background: #c04e70 !important;
     }
 
     .container {
@@ -19,8 +24,8 @@
     }
   </style>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"> </script>
+  <script src="https://unpkg.com/infinite-scroll@3/dist/infinite-scroll.pkgd.js"></script>
   <script>
-
     $(function () {
       $.ajax({
         url: 'http://localhost:8080/getNewsBulletin',
@@ -32,21 +37,28 @@
           var jsonData = JSON.parse(newData);
           for (var i = 0; i < jsonData.lisOfBulletins.length; i++) {
             var counter = jsonData.lisOfBulletins[i];
+            var iDiv = document.createElement('div');
             console.log(counter.url);
-            $('body').append('<div class="card" id="card" id ="'+counter.url+'"><div class="container"><h4><b>' + counter.publisher + '</b></h4><p>' + counter.headLine + '</p></div></div>');
-            $("#"+counter.url).click(function () {
-              console.log(counter.url);
-              window.open(counter.url, "_self");
-            });
+            iDiv.id = counter.url;
+            iDiv.className = 'card';
+            var containerDiv = document.createElement('div');
+            containerDiv.className = 'container';
+            containerDiv.innerHTML = "<h4><b>" + counter.publisher + "</b></h4><p>" + counter.headLine + "</p>";
+            document.getElementsByClassName('container')[0].appendChild(iDiv);
+            iDiv.appendChild(containerDiv);
+            iDiv.onclick = function () {
+              window.open($(this).attr('id'), "_self");
+            }
           }
         }
       });
-
     });
   </script>
 </head>
 
 <body>
 </body>
+<div class="container" data-infinite-scroll='{ "path": ".pagination__next", "append": ".post", "history": false }'>
+</div>
 
 </html>
