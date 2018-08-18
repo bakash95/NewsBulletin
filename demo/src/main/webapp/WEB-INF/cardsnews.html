@@ -3,6 +3,8 @@
 
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <style>
     .card {
       box-shadow: 0 4px 8px 0;
@@ -22,10 +24,38 @@
     .container {
       padding: 2px 16px;
     }
+
+    .searchText {
+      font: 24px arial, sans-serif;
+      font-family: 'Times New Roman', Times, serif;
+      line-height: normal;
+      line-height: 30px;
+      height: 30px !important;
+      width: 50%;
+      text-align: left;
+      margin-bottom: 2%;
+      margin-left: 1%;
+    }
   </style>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"> </script>
-  <script src="https://unpkg.com/infinite-scroll@3/dist/infinite-scroll.pkgd.js"></script>
   <script>
+    function searchFunction() {
+      if (jsonData !== undefined && jsonData) {
+        let searchValue = document.getElementById('search').value;
+        let searchResult = $("div[id*='" + searchValue + "']");
+        let li = document.getElementsByClassName('card');
+        for (i = 0; i < li.length; i++) {
+          if (li[i].id.toLowerCase().indexOf(searchValue) > -1) {
+            li[i].style.display = "";
+          } else {
+            li[i].style.display = "none";
+          }
+        }
+      }
+    }
+  </script>
+  <script>
+    var jsonData = '';
     $(function () {
       $.ajax({
         url: 'http://localhost:8080/getNewsBulletin',
@@ -34,15 +64,16 @@
         success: function (data) {
           console.log(data);
           var newData = JSON.stringify(data)
-          var jsonData = JSON.parse(newData);
+          jsonData = JSON.parse(newData);
           for (var i = 0; i < jsonData.lisOfBulletins.length; i++) {
             var counter = jsonData.lisOfBulletins[i];
             var iDiv = document.createElement('div');
-            console.log(counter.url);
             iDiv.id = counter.url;
+            iDiv.publisher = counter.publisher;
             iDiv.className = 'card';
             var containerDiv = document.createElement('div');
             containerDiv.className = 'container';
+            containerDiv.publisher = counter.publisher;
             containerDiv.innerHTML = "<h4><b>" + counter.publisher + "</b></h4><p>" + counter.headLine + "</p>";
             document.getElementsByClassName('container')[0].appendChild(iDiv);
             iDiv.appendChild(containerDiv);
@@ -53,12 +84,46 @@
         }
       });
     });
+
+    function Sort(e) {
+      let sortOrder = e.value;
+      let li = document.getElementsByClassName('card');
+      if (sortOrder == "asc") {
+        let sortedList = $(li).sort(function (a, b) {
+          let contentA = a.publisher;
+          let contentB = b.publisher;
+          return (contentA < contentB) ? -1 : (contentA > contentB) ? 1 : 0;
+        });
+        let cloneed = sortedList.clone();
+        $('div').empty();
+        cloneed.appendTo($('div'));
+      } else {
+        let sortedList = $(li).sort(function (a, b) {
+          let contentA = a.publisher;
+          let contentB = b.publisher;
+          return (contentA > contentB) ? -1 : (contentA < contentB) ? 1 : 0;
+        });
+        let cloneed = sortedList.clone();
+        $('div').empty();
+        cloneed.appendTo($('div'));
+      }
+    }
   </script>
 </head>
 
 <body>
 </body>
-<div class="container" data-infinite-scroll='{ "path": ".pagination__next", "append": ".post", "history": false }'>
+<input type="text" placeholder="search.." id="search" class="searchText" autofocus>
+<button id="searchButton" onclick="searchFunction()" style="background: transparent;border: none">
+  <i class="material-icons" style="font-size:24px;color:#c04e70 !important;background: transparent;padding-top: 10px">search</i>
+</button>
+<button id="upButton" style="background: transparent;border: none" title="Sort ASC/publisher" value="asc" onclick="Sort(this)">
+  <i class="fa fa-angle-double-up" style="font-size:24px;background: transparent;"></i>
+</button>
+<button id="downButton" style="background: transparent;border: none" title="Sort DEC/publisher" value="dec" onclick="Sort(this)">
+  <i class="fa fa-angle-double-down" style="font-size:24px;background: transparent;"></i>
+</button>
+<div class="container" id="containerParent" data-infinite-scroll='{ "path": ".pagination__next", "append": ".post", "history": false }'>
 </div>
 
 </html>

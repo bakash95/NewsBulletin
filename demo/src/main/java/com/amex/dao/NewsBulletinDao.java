@@ -32,6 +32,12 @@ public class NewsBulletinDao {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
+	/**
+	 * Gets the news bulletin from the Database this requires that the loadNews Rest
+	 * is called atleast once
+	 * 
+	 * @return NewsBulletin
+	 */
 	public NewsBulletins getNewsFromDB() {
 		NewsBulletins newsBulletins = new NewsBulletins();
 		ArrayList<NewsBulletin> listOfBulletins = new ArrayList<NewsBulletin>();
@@ -49,6 +55,13 @@ public class NewsBulletinDao {
 		return newsBulletins;
 	}
 
+	/**
+	 * This loads the news from csv file present in the src/resources folder and
+	 * loads into the Database
+	 * 
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
 	public void loadCSVToDB() throws FileNotFoundException, IOException {
 		jdbcTemplate.execute("DROP TABLE IF EXISTS news_bulletin;");
 		jdbcTemplate.execute(
